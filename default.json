@@ -12,6 +12,14 @@
   "prHourlyLimit": 4,
   "minimumReleaseAge": "3 days",
   "internalChecksFilter": "strict",
+  "schedule": [
+    "before 9am on monday"
+  ],
+  "vulnerabilityAlerts": {
+    "schedule": [
+      "at any time"
+    ]
+  },
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": [
@@ -77,22 +85,6 @@
         "major"
       ],
       "automerge": false
-    },
-    {
-      "description": "Framework group: Next.js, React and Tailwind move together in one PR per app, never half an upgrade (plan §4.8 gate 3).",
-      "groupName": "framework (next, react, tailwindcss)",
-      "groupSlug": "framework",
-      "matchPackageNames": [
-        "next",
-        "eslint-config-next",
-        "@next/**",
-        "react",
-        "react-dom",
-        "@types/react",
-        "@types/react-dom",
-        "tailwindcss",
-        "@tailwindcss/**"
-      ]
     },
     {
       "description": "Framework majors wait 14 days after release (plan §4.8 gate 1).",
@@ -192,9 +184,53 @@
       ]
     },
     {
-      "description": "FoxKit packages: grouped, so one FoxKit release is one PR per app.",
+      "description": "One PR per repo for every safe non-major update (Niki, 2026-09-27: 'group different upgrades into a single PR and auto-merge on green ... otherwise there will be too many PRs'). Renovate's own group:allNonMajor pattern. It overrides the ecosystem groups above for patch/minor/digest/pin updates, so those groups now only batch majors. Only updates that automerge may land here: a grouped PR merges only when every member may, so the rules below move everything that waits for a human (0.x third-party, framework, security-sensitive FoxKit) into their own groups.",
+      "matchUpdateTypes": [
+        "patch",
+        "minor",
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-non-major"
+    },
+    {
+      "description": "0.x third-party patch/minor updates wait for a human (rule 2), so they get their own review PR instead of holding back the auto-merging all-non-major PR. FoxKit's own 0.x packages are moved back out by the FoxKit group below.",
+      "matchCurrentVersion": "/^0\\./",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "0.x dependencies (needs review)",
+      "groupSlug": "zero-x-review",
+      "labels": [
+        "needs-human-review"
+      ]
+    },
+    {
+      "description": "Framework group: Next.js, React and Tailwind move together in one PR per app, never half an upgrade (plan §4.8 gate 3). Placed after the all-non-major group so framework updates (whose minors wait for a human) never hold that PR back; a framework PR with only patches still automerges.",
+      "groupName": "framework (next, react, tailwindcss)",
+      "groupSlug": "framework",
+      "matchPackageNames": [
+        "next",
+        "eslint-config-next",
+        "@next/**",
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom",
+        "tailwindcss",
+        "@tailwindcss/**"
+      ]
+    },
+    {
+      "description": "FoxKit packages: grouped, so one FoxKit release is one PR per app, arriving without the 3-day wait or the Monday schedule. Placed after the all-non-major and 0.x groups so FoxKit updates always land here.",
       "groupName": "FoxKit (@thoughtfox-ai)",
       "groupSlug": "foxkit",
+      "schedule": [
+        "at any time"
+      ],
       "matchPackageNames": [
         "@thoughtfox-ai/**"
       ],
@@ -223,7 +259,10 @@
         "needs-human-review"
       ],
       "prPriority": 10,
-      "groupSlug": "foxkit-security-sensitive"
+      "groupSlug": "foxkit-security-sensitive",
+      "schedule": [
+        "at any time"
+      ]
     }
   ]
 }
