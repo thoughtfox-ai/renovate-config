@@ -76,6 +76,11 @@
       "minimumReleaseAge": "14 days"
     },
     {
+      "description": "Hold TypeScript below 7 (2026-09-29, FoxKit #19). TypeScript 7 is the native (Go) rewrite and ships no JavaScript compiler API (its main entry only exports the version), so typescript-eslint, which @thoughtfox-ai/config's ESLint setup runs in every app, crashes on load (typescript-eslint 8.71.0 declares typescript >=4.8.4 <6.1.0). Next.js 16.3's own type-check does work on 7. Revisit when typescript-eslint (and Next.js) support TS 7; then remove this rule in a @thoughtfox-ai/config release.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7.0.0"
+    },
+    {
       "description": "Radix UI primitives move together: mismatched @radix-ui/* versions inside one app are a common source of subtle breakage, and FoxKit's own @thoughtfox-ai/ui uses the unified radix-ui package. Found repeated across StratOps, FlowFox, FamilyOps, elevAIte and others (2026-09-27 scan).",
       "groupName": "Radix UI primitives",
       "groupSlug": "radix-ui",
