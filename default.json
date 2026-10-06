@@ -8,7 +8,7 @@
     ":timezone(Europe/Dublin)"
   ],
   "rangeStrategy": "auto",
-  "prConcurrentLimit": 10,
+  "prConcurrentLimit": 5,
   "prHourlyLimit": 4,
   "minimumReleaseAge": "3 days",
   "internalChecksFilter": "strict",
@@ -21,6 +21,11 @@
     "schedule": ["before 6am on monday"]
   },
   "packageRules": [
+    {
+      "description": "Renovate regenerates npm lock files with npm 11, not 12 (2026-10-06). npm 12 refuses to fetch any package that declares bundleDependencies during a lock-file-only run (npm/cli#9800, fix pending in npm/cli#9818), and Tailwind 4 pulls one in (@tailwindcss/oxide-wasm32-wasi). Every weekly all-non-major and lock-file PR in an npm repo using Tailwind failed with EALLOWREMOTE and never auto-merged (Website, Emydex). Remove this rule once an npm 12 release contains #9818.",
+      "matchManagers": ["npm"],
+      "constraints": { "npm": "<12" }
+    },
     {
       "description": "Automerge every update that should not break anything (patch, minor, digest and pin updates, and the weekly lock-file refresh), but ONLY once every status check on the PR is green (Niki, 2026-09-27: 'whatever is safe auto-merges on green'). platformAutomerge is off on purpose: Renovate then merges the PR itself, only when the branch is up to date and every check passed, and never in a repo with no checks at all (ignoreTests stays false). GitHub's native auto-merge would merge immediately in a repo whose branch protection doesn't require checks.",
       "matchUpdateTypes": ["patch", "minor", "digest", "pin", "pinDigest", "lockFileMaintenance"],
@@ -57,9 +62,10 @@
       "automerge": false
     },
     {
-      "description": "Major updates never automerge: they are breaking by definition.",
+      "description": "Major updates never automerge: they are breaking by definition. They also no longer open a PR on their own: each waits on the Dependency Dashboard issue until someone ticks its box there (Niki, 2026-10-06: one grouped PR per repo per week instead of a stream of PRs; most of the stream was majors that were held anyway, such as ESLint 10, TypeScript 6, Node 24 and action majors).",
       "matchUpdateTypes": ["major"],
-      "automerge": false
+      "automerge": false,
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Framework majors wait 14 days after release (plan §4.8 gate 1).",
