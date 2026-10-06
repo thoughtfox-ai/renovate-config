@@ -8,7 +8,7 @@
     ":timezone(Europe/Dublin)"
   ],
   "rangeStrategy": "auto",
-  "prConcurrentLimit": 10,
+  "prConcurrentLimit": 5,
   "prHourlyLimit": 4,
   "minimumReleaseAge": "3 days",
   "internalChecksFilter": "strict",
@@ -57,9 +57,10 @@
       "automerge": false
     },
     {
-      "description": "Major updates never automerge: they are breaking by definition.",
+      "description": "Major updates never automerge: they are breaking by definition. They also no longer open a PR on their own: each waits on the Dependency Dashboard issue until someone ticks its box there (Niki, 2026-10-06: one grouped PR per repo per week instead of a stream of PRs; most of the stream was majors that were held anyway, such as ESLint 10, TypeScript 6, Node 24 and action majors).",
       "matchUpdateTypes": ["major"],
-      "automerge": false
+      "automerge": false,
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Framework majors wait 14 days after release (plan §4.8 gate 1).",
